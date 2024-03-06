@@ -17,4 +17,6 @@ public interface UserRepository<T extends User> {
     /* More Complex Operations */
     User getUserByEmail(String email);
     void sendVerificationCode(UserDTO user);
+
+     User verifyCode(String email, String code);
 }
