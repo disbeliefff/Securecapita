@@ -6,10 +6,9 @@ import io.getarrays.securecapita.domain.UserPrincipal;
 import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.form.LoginForm;
 import io.getarrays.securecapita.provider.TokenProvider;
-import io.getarrays.securecapita.repository.RoleRepository;
-import io.getarrays.securecapita.repository.implementation.RoleRepositoryImpl;
 import io.getarrays.securecapita.service.RoleService;
 import io.getarrays.securecapita.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,9 +16,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.validation.Valid;
 import java.net.URI;
 
+import static io.getarrays.securecapita.dtomapper.UserDTOMapper.toUser;
+import static java.net.URI.*;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -72,7 +72,7 @@ public class  UserResource {
     }
 
     private URI getUri() {
-        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());
+        return create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());
     }
 
     private ResponseEntity<HttpResponse> sendResponse(UserDTO user) {
@@ -90,7 +90,7 @@ public class  UserResource {
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
         return new UserPrincipal(
-                userService.getUser(user.getEmail()),
+                toUser(userService.getUserByEmail(user.getEmail())),
                 roleService.getRoleByUserId(user.getId()).getPermission());
     }
 

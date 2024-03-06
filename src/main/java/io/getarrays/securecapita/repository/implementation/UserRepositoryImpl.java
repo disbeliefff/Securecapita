@@ -30,7 +30,6 @@ import java.util.UUID;
 import static io.getarrays.securecapita.enumeration.RoleType.ROLE_USER;
 import static io.getarrays.securecapita.enumeration.VerificationType.ACCOUNT;
 import static io.getarrays.securecapita.query.UserQuery.*;
-import static io.getarrays.securecapita.utils.SmsUtils.sendSMS;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -130,6 +129,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     @Override
     public User verifyCode(String email, String code) {
+        if(isVerificationCodeExpired(code)) throw new ApiException("This code has expired. Please login again.");
         try {
             User userByCode = jdbc.queryForObject(SELECT_USER_BY_USER_CODE_QUERY, of( "code", code),
                     new UserRowMapper());
@@ -149,6 +149,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
 
+
     private Integer getEmailCount(String email) {
         return jdbc.queryForObject(COUNT_USER_EMAIL_QUERY, of("email", email), Integer.class);
     }
@@ -163,6 +164,17 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     private String getVerificationUrl(String key, String type) {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/verify/" + type + "/" + key).toUriString();
+    }
+
+    private Boolean isVerificationCodeExpired(String code) {
+        try {
+            return jdbc.queryForObject(SELECT_CODE_EXPIRATION_QUERY, of("code", code),
+                    Boolean.class);
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("This code is not valid. Please try again");
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again");
+        }
     }
 }
 
