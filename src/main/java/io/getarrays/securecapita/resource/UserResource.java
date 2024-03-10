@@ -8,6 +8,8 @@ import io.getarrays.securecapita.form.LoginForm;
 import io.getarrays.securecapita.provider.TokenProvider;
 import io.getarrays.securecapita.service.RoleService;
 import io.getarrays.securecapita.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +26,7 @@ import static io.getarrays.securecapita.dtomapper.UserDTOMapper.toUser;
 import static java.net.URI.*;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 
 @RestController
@@ -41,7 +42,8 @@ public class  UserResource {
 
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(),
+                loginForm.getPassword()));
         UserDTO user = userService.getUserByEmail(loginForm.getEmail());
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
     }
@@ -85,6 +87,17 @@ public class  UserResource {
                         .message("Login Success")
                         .status(OK)
                         .statusCode(OK.value())
+                        .build());
+    }
+
+    @RequestMapping("/error")
+    public ResponseEntity<HttpResponse> handleError (HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .reason("There is no mapping for a " + request.getMethod() + " request for this path on the server")
+                        .status(BAD_REQUEST)
+                        .statusCode(BAD_REQUEST.value())
                         .build());
     }
 
