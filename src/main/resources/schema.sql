@@ -44,6 +44,9 @@ CREATE TABLE Roles
 #
 # INSERT INTO Roles (name, permission)
 # VALUES ('ROLE_USER', 'READ:USER');
+#
+# INSERT INTO Roles (name, permission)
+# VALUES ('ROLE_CUSTOMER', 'READ:CUSTOMER');
 
 DROP TABLE IF EXISTS UserRoles;
 

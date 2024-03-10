@@ -7,7 +7,9 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.getarrays.securecapita.domain.UserPrincipal;
+import io.getarrays.securecapita.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +30,20 @@ import static java.util.stream.Collectors.toList;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class TokenProvider {
 
-    private static final String AUTHORITIES = "authorities";
+
+    public static final String AUTHORITIES = "authorities";
+
     private static final String GET_ARRAYS_LLC = "GET_ARRAYS_LLC";
+
     private static final String CUSTOMER_MANAGEMENT_SERVICE = "CUSTOMER_MANAGEMENT_SERVICE";
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1_800_000;
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000 ;
+
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 432_000_000; //1_800_000;
+
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000; // 5 days
+
     public static final String TOKEN_CANNOT_BE_VERIFIED = "Token cannot be verified";
 
     @Value("${jwt.secret}")
@@ -104,22 +113,22 @@ public class TokenProvider {
     }
 
     private String[] getClaimsFromUser(UserPrincipal userPrincipal) {
-        return userPrincipal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).toArray(String[]::new);
+        return userPrincipal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray(String[]::new);
     }
 
     private String[] getClaimsFromToken(String token) {
         JWTVerifier verifier = getJWTVerifier();
-        return  verifier.verify(token)
-                .getClaim(AUTHORITIES).asArray(String.class);
+        return verifier.verify(token).getClaim(AUTHORITIES).asArray(String.class);
     }
 
     private JWTVerifier getJWTVerifier() {
         JWTVerifier verifier;
-        try {
+        try
+        {
             Algorithm algorithm = HMAC512(secret);
             verifier = JWT.require(algorithm).withIssuer(GET_ARRAYS_LLC).build();
-        } catch (JWTVerificationException exception) {
+        }catch(JWTVerificationException exception)
+        {
             throw new JWTVerificationException(TOKEN_CANNOT_BE_VERIFIED);
         }
         return verifier;
