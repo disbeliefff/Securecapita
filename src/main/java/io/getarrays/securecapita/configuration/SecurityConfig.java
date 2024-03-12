@@ -37,7 +37,12 @@ public class SecurityConfig {
             "/user/login/**",
             "/user/register/**",
             "/user/verify/code/**",
-            "/user/profile/**"
+            "/user/profile/**",
+            "/user/reset-password/**",
+            "/user/verify/password/**",
+            "/user/reset-password/**",
+            "/user/verify/account/**",
+            "/user/refresh/token/**"
     };
 
 

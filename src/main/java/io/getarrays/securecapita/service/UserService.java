@@ -12,4 +12,12 @@ public interface UserService {
     UserDTO verifyCode(String email, String code);
 
     UserDTO getUser(String email);
+
+    void resetPassword(String email);
+
+    UserDTO verifyPasswordKey(String key);
+
+    void renewPassword(String key, String password, String confirmPassword);
+
+    UserDTO verifyAccountKey(String key);
 }

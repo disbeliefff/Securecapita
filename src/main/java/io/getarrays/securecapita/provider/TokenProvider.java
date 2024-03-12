@@ -33,6 +33,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class TokenProvider {
 
+    private final UserService userService;
+
 
     public static final String AUTHORITIES = "authorities";
 
@@ -96,7 +98,7 @@ public class TokenProvider {
                                             List<GrantedAuthority>authorities,
                                             HttpServletRequest request) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthToken = new UsernamePasswordAuthenticationToken(
-                email, null, authorities
+                userService.getUserByEmail(email), null, authorities
         );
         usernamePasswordAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return usernamePasswordAuthToken;
