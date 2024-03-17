@@ -6,6 +6,7 @@ import io.getarrays.securecapita.domain.UserPrincipal;
 import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.exception.ApiException;
 import io.getarrays.securecapita.form.LoginForm;
+import io.getarrays.securecapita.form.UpdateForm;
 import io.getarrays.securecapita.provider.TokenProvider;
 import io.getarrays.securecapita.service.RoleService;
 import io.getarrays.securecapita.service.UserService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import static io.getarrays.securecapita.dtomapper.UserDTOMapper.toUser;
 import static io.getarrays.securecapita.utils.UserUtils.getAuthenticatedUser;
@@ -84,6 +86,22 @@ public class  UserResource {
                         .statusCode(OK.value())
                         .build());
     }
+
+    @PatchMapping("/update")
+    public ResponseEntity<HttpResponse> updateUser (@RequestBody @Valid UpdateForm user) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
+        UserDTO updatedUser = userService.updateUserDetails(user);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", updatedUser))
+                        .message("User updated")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+
     @GetMapping("/verify/code/{email}/{code}")
     public ResponseEntity<HttpResponse> verifyCode (@PathVariable ("email") String email,
                                                     @PathVariable ("code") String code) {
@@ -157,7 +175,7 @@ public class  UserResource {
     public ResponseEntity<HttpResponse> refreshToken (HttpServletRequest request) {
         if(isHeaderAndTokenValid(request)) {
             String token = request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length());
-            UserDTO user = userService.getUserByEmail(tokenProvider.getSubject(token, request));
+            UserDTO user = userService.getUserById(tokenProvider.getSubject(token, request));
             return ResponseEntity.ok().body(
                     HttpResponse.builder()
                             .timeStamp(now().toString())
@@ -187,7 +205,7 @@ public class  UserResource {
                 // Check if the token is valid using the tokenProvider object
                 && tokenProvider.isTokenValid(
                 // Extract the subject from the token by removing the token prefix from the Authorization header
-                request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length()),
+                Long.valueOf(request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length())),
                 // Also, pass the same substring as the second argument
                 // Possibly to perform further validation within the isTokenValid method
                 request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length())

@@ -6,6 +6,7 @@ import io.getarrays.securecapita.domain.UserPrincipal;
 import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.enumeration.VerificationType;
 import io.getarrays.securecapita.exception.ApiException;
+import io.getarrays.securecapita.form.UpdateForm;
 import io.getarrays.securecapita.repository.RoleRepository;
 import io.getarrays.securecapita.repository.UserRepository;
 import io.getarrays.securecapita.rowmapper.UserRowMapper;
@@ -77,7 +78,14 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     @Override
     public User get(Long id) {
-        return null;
+        try {
+            return jdbc.queryForObject(SELECT_USER_BY_ID_QUERY, of("id", id), new UserRowMapper());
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("No User found by id: " + id);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 
     @Override
@@ -220,15 +228,28 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public User updateUserDetails(UpdateForm user) {
+        try {
+            jdbc.update(UPDATE_USER_DETAILS_QUERY, getUserDetailsSqlParameterSource(user));
+            return get(user.getId());
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("No user found by id:" + user.getId());
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("This link is not valid. Please try again");
+        }
+    }
+
     private Boolean isLinkExpired(String key, VerificationType password) {
         try {
-            return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL_QUERY, of("url", getVerificationUrl(key, password.getType())),
-                    Boolean.class);
+            return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL_QUERY,
+                    of("url", getVerificationUrl(key, password.getType())), Boolean.class);
         } catch (EmptyResultDataAccessException exception) {
-            log.info(exception.getMessage());
+            log.error(exception.getMessage());
             throw new ApiException("This link is not valid. Please reset your password again");
         } catch (Exception exception) {
-            log.info(exception.getMessage());
+            log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again");
         }
     }
@@ -244,6 +265,18 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 .addValue("lastName", user.getLastName())
                 .addValue("email", user.getEmail())
                 .addValue("password", encoder.encode(user.getPassword()));
+    }
+
+    private SqlParameterSource getUserDetailsSqlParameterSource(UpdateForm user) {
+        return new MapSqlParameterSource()
+                .addValue("id", user.getId())
+                .addValue("firstName", user.getFirstName())
+                .addValue("lastName", user.getLastName())
+                .addValue("email", user.getEmail())
+                .addValue("phone", user.getPhone())
+                .addValue("address", user.getAddress())
+                .addValue("title", user.getTitle())
+                .addValue("bio", user.getBio());
     }
 
     private String getVerificationUrl(String key, String type) {

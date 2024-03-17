@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 
@@ -44,14 +43,15 @@ public class SecurityConfig {
             "/user/verify/password/**",
             "/user/reset-password/**",
             "/user/verify/account/**",
-            "/user/refresh/token/**"
+            "/user/refresh/token/**",
+            "user/update/**"
     };
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(withDefaults());
+                .cors();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_URLS).permitAll());
         http.authorizeHttpRequests(request -> request.requestMatchers(OPTIONS).permitAll());

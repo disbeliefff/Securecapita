@@ -2,6 +2,7 @@ package io.getarrays.securecapita.repository;
 
 import io.getarrays.securecapita.domain.User;
 import io.getarrays.securecapita.dto.UserDTO;
+import io.getarrays.securecapita.form.UpdateForm;
 
 import java.util.Collection;
 
@@ -27,4 +28,6 @@ public interface UserRepository<T extends User> {
     void renewPassword(String key, String password, String confirmPassword);
 
     T verifyAccountKey(String key);
+
+    T updateUserDetails(UpdateForm user);
 }
