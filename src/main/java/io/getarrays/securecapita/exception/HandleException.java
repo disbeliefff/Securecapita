@@ -130,7 +130,7 @@ public class HandleException extends ResponseEntityExceptionHandler implements E
     }
 
     /**
-     * Handles Exceptions for every given to functions argument that has @Valid above them and that has @NotEmpty, @Email, etc above the variables to which they will be linked
+     * Handles Exceptions for every given to functions argument that has @Valid above them and that has @NotEmpty, @Email, and others above the variables to which they will be linked
      */
     @ExceptionHandler (Exception.class)
     public ResponseEntity<HttpResponse> exception (Exception exception)

@@ -21,7 +21,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
         HttpResponse httpResponse = HttpResponse.builder()
                 .timeStamp(now().toString())
                 .reason("You don't have enough permission")

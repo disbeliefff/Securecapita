@@ -41,12 +41,7 @@ CREATE TABLE Roles
     permission VARCHAR(255) NOT NULL,
     CONSTRAINT UQ_Roles_Name UNIQUE (name)
 );
-#
-# INSERT INTO Roles (name, permission)
-# VALUES ('ROLE_USER', 'READ:USER');
-#
-# INSERT INTO Roles (name, permission)
-# VALUES ('ROLE_CUSTOMER', 'READ:CUSTOMER');
+
 
 DROP TABLE IF EXISTS UserRoles;
 

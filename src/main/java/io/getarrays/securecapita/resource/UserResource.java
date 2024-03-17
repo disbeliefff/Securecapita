@@ -24,8 +24,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 import static io.getarrays.securecapita.dtomapper.UserDTOMapper.toUser;
-import static io.getarrays.securecapita.utils.ExceptionUtils.processError;
-import static java.net.URI.*;
+import static io.getarrays.securecapita.utils.UserUtils.getAuthenticatedUser;
+import static io.getarrays.securecapita.utils.UserUtils.getLoggedInUser;
+import static java.net.URI.create;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -50,16 +51,11 @@ public class  UserResource {
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm) {
         Authentication authentication = authenticate(loginForm.getEmail(), loginForm.getPassword());
-        UserDTO user = getAuthenticatedUser(authentication);
+        UserDTO user = getLoggedInUser(authentication);
         System.out.println(authentication);
         System.out.println(((UserPrincipal) authentication.getPrincipal()).getUser());
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
     }
-
-    private UserDTO getAuthenticatedUser(Authentication authentication) {
-        return ((UserPrincipal) authentication.getPrincipal()).getUser();
-    }
-
 
 
     @PostMapping("/register")
@@ -78,7 +74,7 @@ public class  UserResource {
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile (Authentication authentication) {
         System.out.println(authentication);
-        UserDTO user = userService.getUserByEmail(authentication.getName());
+        UserDTO user = userService.getUserByEmail(getAuthenticatedUser(authentication).getEmail());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
@@ -214,7 +210,7 @@ public class  UserResource {
            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
            return authentication;
        } catch (Exception exception) {
-           processError(request, response,exception);
+//           processError(request, response,exception);
            throw new ApiException(exception.getMessage());
        }
     }
