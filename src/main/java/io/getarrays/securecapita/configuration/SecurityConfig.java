@@ -46,7 +46,9 @@ public class SecurityConfig {
             "/user/refresh/token/**",
             "/user/update/**",
             "/user/update/password/**",
-            "/user/update/role/**"
+            "/user/update/role/**",
+            "/user/update/settings/**",
+            "/user/toggleMfa/**"
     };
 
 

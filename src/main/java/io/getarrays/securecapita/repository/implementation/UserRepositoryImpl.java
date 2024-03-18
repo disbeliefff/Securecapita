@@ -37,6 +37,7 @@ import static io.getarrays.securecapita.query.UserQuery.*;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 
@@ -257,6 +258,35 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             }
         } else {
             throw new ApiException("Incorrect current password. Please try again");
+        }
+    }
+
+    @Override
+    public void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked) {
+        try {
+             jdbc.update(UPDATE_USER_SETTINGS_QUERY, of(
+                     "userId", userId,
+                     "enabled", enabled,
+                     "notLocked", notLocked));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again");
+        }
+    }
+
+    @Override
+    public User toggleMfa(String email) {
+        User user = getUserByEmail(email);
+        if (isBlank(user.getPhone())) {
+            throw new ApiException("You need a phone number to change Multi-Factor Authentication");
+        }
+        user.setUsingMfa(!user.isUsingMfa());
+        try {
+            jdbc.update(TOGGLE_USER_MFA_QUERY, of("email", email, "isUsingMfa", user.isUsingMfa()));
+            return user;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("Unable to update Multi-Factor Authentication");
         }
     }
 

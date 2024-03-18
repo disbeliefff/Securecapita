@@ -6,6 +6,7 @@ import io.getarrays.securecapita.domain.UserPrincipal;
 import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.exception.ApiException;
 import io.getarrays.securecapita.form.LoginForm;
+import io.getarrays.securecapita.form.SettingsForm;
 import io.getarrays.securecapita.form.UpdateForm;
 import io.getarrays.securecapita.form.UpdatePasswordForm;
 import io.getarrays.securecapita.provider.TokenProvider;
@@ -187,6 +188,37 @@ public class  UserResource {
                                  "roles", roleService.getRoles()))
                         .timeStamp(now().toString())
                         .message("Role updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/settings")
+    public ResponseEntity<HttpResponse> updateAccountSettings (Authentication authentication,
+                                                        @RequestBody @Valid SettingsForm form) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updateAccountSettings(userDTO.getId(), form.getEnabled(), form.getNotLocked());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()),
+                                 "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Account settings updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/toggleMfa")
+    public ResponseEntity<HttpResponse> toggleMfa (Authentication authentication) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
+        UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).getEmail());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user",user,
+                                 "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Multi-Factor Authentication updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
