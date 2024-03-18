@@ -31,8 +31,14 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
     }
 
     @Override
-    public Collection<Role> list(int page, int pageSize) {
-        return null;
+    public Collection<Role> list() {
+        log.info("Fetching all roles");
+        try {
+            return jdbc.query(SELECT_ROLES_QUERY, new RoleRowMapper());
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 
     @Override
@@ -85,6 +91,15 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
-
+        log.info("Updating role for user id: {}", userId);
+        try {
+            Role role = jdbc.queryForObject(SELECT_ROLE_BY_NAME_QUERY, of("name", roleName), new RoleRowMapper());
+            jdbc.update(UPDATE_USER_ROLE_QUERY, of("roleId", role.getId(), "userId", userId));
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("No role found by name: " + roleName);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 }

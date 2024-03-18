@@ -81,7 +81,7 @@ public class  UserResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", user))
+                        .data(of("user", user, "roles", roleService.getRoles()))
                         .message("Profile Retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -171,6 +171,22 @@ public class  UserResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .message("Password updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/role/{roleName}")
+    public ResponseEntity<HttpResponse> updateUserRole (Authentication authentication,
+                                                        @PathVariable("roleName") String roleName) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updateUserRole(userDTO.getId(), roleName);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()),
+                                 "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Role updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

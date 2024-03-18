@@ -76,6 +76,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateUserRole(Long userId, String roleName) {
+        roleRepository.updateUserRole(userId, roleName);
+    }
+
+    @Override
     public UserDTO verifyCode(String email, String code) {
         return mapToUserDTO(userRepository.verifyCode(email, code));
     }
