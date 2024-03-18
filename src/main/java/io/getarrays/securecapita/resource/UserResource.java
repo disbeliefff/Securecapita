@@ -7,6 +7,7 @@ import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.exception.ApiException;
 import io.getarrays.securecapita.form.LoginForm;
 import io.getarrays.securecapita.form.UpdateForm;
+import io.getarrays.securecapita.form.UpdatePasswordForm;
 import io.getarrays.securecapita.provider.TokenProvider;
 import io.getarrays.securecapita.service.RoleService;
 import io.getarrays.securecapita.service.UserService;
@@ -159,6 +160,22 @@ public class  UserResource {
     }
 
     // End - To reset password when user is not logged in
+
+    @PatchMapping("/update/password")
+    public ResponseEntity<HttpResponse> updatePassword (Authentication authentication,
+                                                        @RequestBody @Valid UpdatePasswordForm form) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updatePassword(userDTO.getId(),
+                form.getCurrentPassword(), form.getNewPassword(), form.getConfirmNewPassword());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Password updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
 
     @GetMapping("/verify/account/{key}")
     public ResponseEntity<HttpResponse> verifyAccount (@PathVariable ("key") String key) {

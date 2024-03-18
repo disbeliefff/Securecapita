@@ -27,6 +27,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.getarrays.securecapita.enumeration.RoleType.ROLE_USER;
@@ -238,6 +239,24 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("This link is not valid. Please try again");
+        }
+    }
+
+    @Override
+    public void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword) {
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new ApiException("Passwords don't match. Please try again");
+        }
+        User user = get(id);
+        if (encoder.matches(currentPassword, user.getPassword())) {
+            try {
+                 jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY,
+                        of("userId", id, "password", encoder.encode(newPassword)));
+            } catch (Exception exception) {
+                throw new ApiException("An error occurred. Please try again");
+            }
+        } else {
+            throw new ApiException("Incorrect current password. Please try again");
         }
     }
 

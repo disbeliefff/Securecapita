@@ -42,9 +42,9 @@ public class TokenProvider {
 
     private static final String CUSTOMER_MANAGEMENT_SERVICE = "CUSTOMER_MANAGEMENT_SERVICE";
 
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 432_000_000; //1_800_000;
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 432_000_000;
 
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000; // 5 days
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000;
 
     public static final String TOKEN_CANNOT_BE_VERIFIED = "Token cannot be verified";
 
@@ -98,8 +98,7 @@ public class TokenProvider {
                                             List<GrantedAuthority>authorities,
                                             HttpServletRequest request) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthToken = new UsernamePasswordAuthenticationToken(
-                userService.getUserById(userId), null, authorities
-        );
+                userService.getUserById(userId), null, authorities);
         usernamePasswordAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return usernamePasswordAuthToken;
     }
@@ -129,8 +128,7 @@ public class TokenProvider {
         {
             Algorithm algorithm = HMAC512(secret);
             verifier = JWT.require(algorithm).withIssuer(GET_ARRAYS_LLC).build();
-        }catch(JWTVerificationException exception)
-        {
+        }catch(JWTVerificationException exception) {
             throw new JWTVerificationException(TOKEN_CANNOT_BE_VERIFIED);
         }
         return verifier;

@@ -44,7 +44,8 @@ public class SecurityConfig {
             "/user/reset-password/**",
             "/user/verify/account/**",
             "/user/refresh/token/**",
-            "user/update/**"
+            "user/update/**",
+            "/update/password/**"
     };
 
 

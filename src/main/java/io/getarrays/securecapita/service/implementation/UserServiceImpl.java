@@ -71,6 +71,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword) {
+        userRepository.updatePassword(id, currentPassword, newPassword, confirmNewPassword);
+    }
+
+    @Override
     public UserDTO verifyCode(String email, String code) {
         return mapToUserDTO(userRepository.verifyCode(email, code));
     }

@@ -28,13 +28,16 @@ public class ExceptionUtils {
         HttpResponse httpResponse;
         if (exception instanceof ApiException || exception instanceof BadCredentialsException ||
                 exception instanceof LockedException || exception instanceof DisabledException ||
-                exception instanceof InvalidClaimException || exception instanceof TokenExpiredException) {
+                exception instanceof InvalidClaimException) {
             httpResponse = getHttpResponse(response, exception.getMessage(), BAD_REQUEST);
+            writeResponse(response, httpResponse);
+        } else if (exception instanceof TokenExpiredException){
+                httpResponse = getHttpResponse(response, exception.getMessage(), UNAUTHORIZED);
+                writeResponse(response, httpResponse);
         } else {
-            httpResponse = getHttpResponse(response, "An error occurred. Please try again",
-                    INTERNAL_SERVER_ERROR);
+            httpResponse = getHttpResponse(response, "An error occurred. Please try again", INTERNAL_SERVER_ERROR);
+            writeResponse(response, httpResponse);
         }
-        writeResponse(response, httpResponse);
         log.error(exception.getMessage());
     }
 
