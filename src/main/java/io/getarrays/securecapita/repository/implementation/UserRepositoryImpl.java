@@ -54,7 +54,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @Slf4j
 public class UserRepositoryImpl implements UserRepository<User>, UserDetailsService {
     private static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
-     private final NamedParameterJdbcTemplate jdbc;
+    private final NamedParameterJdbcTemplate jdbc;
     private final RoleRepository<Role> roleRepository;
     private final BCryptPasswordEncoder encoder;
 
