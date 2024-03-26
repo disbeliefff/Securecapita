@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
@@ -80,13 +81,13 @@ public class CustomerResource {
     public ResponseEntity<HttpResponse> searchCustomers (@AuthenticationPrincipal UserDTO user,
                                                         Optional<String> name,
                                                         @RequestParam Optional<Integer> page,
-                                                        @RequestParam Optional<Integer> size){
+                                                        @RequestParam Optional<Integer> size) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of(
                                 "user", userService.getUserByEmail(user.getEmail()),
-                                "customers", customerService.searchCustomers(name.orElse(""), page.orElse(0), size.orElse(10))))
+                                "page", customerService.searchCustomers(name.orElse(""), page.orElse(0), size.orElse(10))))
                         .message("Customers retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -157,12 +158,14 @@ public class CustomerResource {
     @GetMapping("/invoice/get/{id}")
     public ResponseEntity<HttpResponse> getInvoice (@AuthenticationPrincipal UserDTO user,
                                                     @PathVariable ("id") Long id) {
+        Invoice invoice = customerService.getInvoice(id);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of(
                                 "user", userService.getUserByEmail(user.getEmail()),
-                                "invoice", customerService.getInvoice(id)))
+                                "invoice", invoice,
+                                "customer", customerService.getInvoice(id).getCustomer()))
                         .message("Invoice retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -180,7 +183,7 @@ public class CustomerResource {
                         .data(of(
                                 "user", userService.getUserByEmail(user.getEmail()),
                                 "customers", customerService.getCustomers()))
-                        .message("Customers retrieved")
+                        .message(String.format("Invoice added to customer with ID %s", id))
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
