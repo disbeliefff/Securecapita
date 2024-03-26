@@ -1,6 +1,7 @@
 package io.getarrays.securecapita.repository;
 
 import io.getarrays.securecapita.domain.Customer;
+import io.getarrays.securecapita.domain.Stats;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.ListCrudRepository;
@@ -10,4 +11,5 @@ public interface CustomerRepository
         extends PagingAndSortingRepository<Customer, Long>, ListCrudRepository<Customer, Long> {
 
     Page<Customer>findByNameContaining(String name, Pageable pageable);
+
 }

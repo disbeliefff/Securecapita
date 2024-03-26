@@ -2,6 +2,7 @@ package io.getarrays.securecapita.service;
 
 import io.getarrays.securecapita.domain.Customer;
 import io.getarrays.securecapita.domain.Invoice;
+import io.getarrays.securecapita.domain.Stats;
 import io.getarrays.securecapita.dto.UserDTO;
 import org.springframework.data.domain.Page;
 
@@ -28,4 +29,6 @@ public interface CustomerService {
     void addInvoiceToCustomer (Long id, Invoice invoice);
 
     Invoice getInvoice(Long id);
+
+    Stats getStats();
 }
