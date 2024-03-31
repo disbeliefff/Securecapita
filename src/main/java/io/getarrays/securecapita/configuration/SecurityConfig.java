@@ -50,7 +50,8 @@ public class SecurityConfig {
             "/user/update/settings/**",
             "/user/toggleMfa/**",
             "/user/image/**",
-            "/user/update/image/**"
+            "/user/update/image/**",
+            "/user/new/password/**"
     };
 
 

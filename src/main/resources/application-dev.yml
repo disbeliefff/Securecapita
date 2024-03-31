@@ -14,6 +14,21 @@ spring:
     url: jdbc:mysql://localhost:3306/securecapita
     password: pass
     username: root
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: <email>
+    password: <password>
+    properties:
+      mail:
+        smtp:
+          writetimeout: 5000
+          connectiontimeout: 5000
+          timeout: 5000
+          auth: true
+          starttls:
+            enable: true
+            required: true
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     generate-ddl: true
