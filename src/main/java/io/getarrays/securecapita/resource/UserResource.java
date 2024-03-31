@@ -8,10 +8,7 @@ import io.getarrays.securecapita.dto.UserDTO;
 import io.getarrays.securecapita.enumeration.EventType;
 import io.getarrays.securecapita.events.NewUserEvent;
 import io.getarrays.securecapita.exception.ApiException;
-import io.getarrays.securecapita.form.LoginForm;
-import io.getarrays.securecapita.form.SettingsForm;
-import io.getarrays.securecapita.form.UpdateForm;
-import io.getarrays.securecapita.form.UpdatePasswordForm;
+import io.getarrays.securecapita.form.*;
 import io.getarrays.securecapita.provider.TokenProvider;
 import io.getarrays.securecapita.service.EventService;
 import io.getarrays.securecapita.service.RoleService;
@@ -40,6 +37,7 @@ import static io.getarrays.securecapita.enumeration.EventType.*;
 import static io.getarrays.securecapita.utils.ExceptionUtils.processError;
 import static io.getarrays.securecapita.utils.UserUtils.getAuthenticatedUser;
 import static io.getarrays.securecapita.utils.UserUtils.getLoggedInUser;
+import static java.lang.String.format;
 import static java.net.URI.create;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
@@ -79,7 +77,7 @@ public class  UserResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userDto))
-                        .message("User created")
+                        .message(format("User created for user %s", user.getFirstName()))
                         .status(CREATED)
                         .statusCode(CREATED.value())
                         .build());
@@ -158,11 +156,9 @@ public class  UserResource {
                         .build());
     }
 
-    @PostMapping("/reset-password/{key}/{password}/{confirmPassword}")
-    public ResponseEntity<HttpResponse> resetPasswordWithKey (@PathVariable ("key") String key,
-                                                           @PathVariable ("password") String password,
-                                                           @PathVariable ("confirmPassword") String confirmPassword) {
-        userService.renewPassword(key, password, confirmPassword);
+    @PutMapping("/new/password")
+    public ResponseEntity<HttpResponse> resetPasswordWithKey (@RequestBody @Valid NewPasswordForm form) {
+        userService.updatePassword(form.getUserId(), form.getPassword(), form.getConfirmPassword());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
